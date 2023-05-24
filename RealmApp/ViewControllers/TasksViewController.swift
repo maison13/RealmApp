@@ -64,9 +64,36 @@ final class TasksViewController: UITableViewController {
         let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { [unowned self] _, _, _ in
             storageManager.delete(tasks: taskList, for: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .automatic)
-        
         }
-        return UISwipeActionsConfiguration(actions: [deleteAction])
+        
+        let editAction = UIContextualAction(style: .normal, title: "Edit") { [unowned self] _, _, isDone in
+            
+            showAlert(with: taskList.tasks[indexPath.row])
+            tableView.reloadRows(at: [indexPath], with: .automatic)
+            isDone(true)
+        }
+        editAction.backgroundColor = .orange
+        
+        if indexPath.section == 0 {
+            let doneAction = UIContextualAction(style: .normal, title: "Done") {[unowned self] _, _, isDone in
+                storageManager.done(taskList.tasks[indexPath.row])
+                
+                tableView.reloadData()
+                isDone(true)
+            }
+            
+            doneAction.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
+            return UISwipeActionsConfiguration(actions: [doneAction, editAction, deleteAction])
+        } else {
+            let undoneAction = UIContextualAction(style: .normal, title: "Undone"){[unowned self] _, _, isDone in
+                storageManager.undone(taskList.tasks[indexPath.row])
+                tableView.reloadData()
+                isDone(true)
+            }
+            undoneAction.backgroundColor = #colorLiteral(red: 0.3411764801, green: 0.6235294342, blue: 0.1686274558, alpha: 1)
+            return UISwipeActionsConfiguration(actions: [undoneAction, editAction, deleteAction])
+        }
+
     }
 
 }
@@ -85,7 +112,8 @@ extension TasksViewController {
                 style: .default
             ) { [weak self] taskTitle, taskNote in
                 if let task, let completion {
-                    // TODO: - edit task
+                    self?.storageManager.edit(task, for: taskTitle, and: taskNote)
+                    completion()
                     return
                 }
                 self?.save(task: taskTitle, withNote: taskNote)

@@ -45,7 +45,21 @@ final class TaskListViewController: UITableViewController {
         var content = cell.defaultContentConfiguration()
         let taskList = taskLists[indexPath.row]
         content.text = taskList.title
-        content.secondaryText = taskList.tasks.count.formatted()
+        let taskCount = taskList.tasks.filter("isComplete = false").count
+        content.secondaryText = taskCount.formatted()
+        
+        if taskCount == 0 {
+            if let checkmarkImage = UIImage(named: "GreenCheckmark") {
+                let image = NSTextAttachment(image: checkmarkImage)
+                let attributesString = NSAttributedString(attachment: image)
+            
+                content.secondaryAttributedText = attributesString
+            }
+            
+        } else {
+            content.secondaryText = taskCount.formatted()
+        }
+       
         cell.contentConfiguration = content
         return cell
     }
@@ -87,7 +101,14 @@ final class TaskListViewController: UITableViewController {
     }
 
     @IBAction func sortingList(_ sender: UISegmentedControl) {
-    }
+        switch sender.selectedSegmentIndex {
+        case 0:
+            taskLists = taskLists.sorted(byKeyPath: "date", ascending: true)
+        default:
+            taskLists = taskLists.sorted(byKeyPath: "title", ascending: true)
+        }
+        tableView.reloadData()
+          }
     
     @objc private func addButtonPressed() {
         showAlert()

@@ -71,15 +71,22 @@ final class StorageManager {
         }
     }
     
-    func edit(tasks taskList: TaskList, newValue: String) {
+    func edit(_ task: Task,for newTitle: String, and newNote: String) {
         write {
-            taskList.title = newValue
+            task.title = newTitle
+            task.note = newNote
         }
     }
 
-    func done(tasks taskList: TaskList) {
+    func done(_ task: Task) {
         write {
-            taskList.tasks.setValue(true, forKey: "isComplete")
+            task.setValue(true, forKey: "isComplete")
+        }
+    }
+    
+    func undone(_ task: Task) {
+        write {
+            task.setValue(false, forKey: "isComplete")
         }
     }
     private func write(completion: () -> Void) {
